@@ -5,36 +5,47 @@ import java.net.*;
 import java.util.*;
 
 public class ChatServer {
-	private static final int SERVER_SOCKET_TIMEOUT = 500;
 
+	private static final int SERVER_SOCKET_TIMEOUT = 500;
+	
+	private ServerSocket listenSocket;
+	private List<Connection> clients;
+	
+	public ChatServer(int serverPort) throws IOException {
+		listenSocket = new ServerSocket(serverPort);
+		listenSocket.setSoTimeout(SERVER_SOCKET_TIMEOUT);
+		
+		clients = new LinkedList<Connection>();
+	}
+	
+	public void acceptNewConnections() throws IOException {
+		try {
+		Socket clientSocket = listenSocket.accept();
+		Connection c = new Connection(clientSocket);
+		clients.add(c);
+		} catch (SocketTimeoutException e) { }
+	}
+	
+	public void processMessages() {
+		for (Connection source : clients) {
+			String message = source.readMessage();
+			if (message != null) {
+				for (Connection dest : clients) {
+					if (source != dest)
+						dest.writeMessage(message);
+				}
+			}
+		}
+	}
+	
 	public static void main(String args[]) {
 		try {
 			int serverPort = Integer.parseInt(args[0]);
-			ServerSocket listenSocket = new ServerSocket(serverPort);
-			listenSocket.setSoTimeout(SERVER_SOCKET_TIMEOUT);
-
-//			ConnectionManager cm = new ConnectionManager(listenSocket);
-			List<Connection> clients = new LinkedList<Connection>(); //cm.getConnectionPool();
-//			cm.start();
+			ChatServer server = new ChatServer(serverPort);
 
 			while (true) {
-				try {
-					Socket clientSocket = listenSocket.accept();
-					Connection c = new Connection(clientSocket);
-					clients.add(c);
-					System.out.println("Added connection");
-				} catch (SocketTimeoutException e) { }
-				//synchronized (clients) {
-					for (Connection source : clients) {
-						String message = source.readMessage();
-						if (message != null) {
-						for (Connection dest : clients) {
-							if (source != dest)
-								dest.writeMessage(message);
-						}
-						}
-					}
-				//}
+				server.acceptNewConnections();
+				server.processMessages();
 			}
 		} catch (IOException e) {
 			System.out.println("Listen :" + e.getMessage());

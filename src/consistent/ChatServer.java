@@ -6,36 +6,48 @@ import java.util.*;
 
 public class ChatServer {
 
-	private static final int SERVER_SOCKET_TIMEOUT = 500;
+	private static final int DEFAULT_SERVER_SOCKET_TIMEOUT = 500;
 
 	private ServerSocket listenSocket;
 	private List<Connection> clients;
 
-	public ChatServer(int serverPort) throws IOException {
+	public ChatServer(int serverPort, int serverSocketTimeout) throws IOException {
 		listenSocket = new ServerSocket(serverPort);
-		listenSocket.setSoTimeout(SERVER_SOCKET_TIMEOUT);
+		listenSocket.setSoTimeout(serverSocketTimeout);
 
 		clients = new LinkedList<Connection>();
 	}
 
-	public void acceptNewConnections() throws IOException {
+	public boolean acceptNewConnection() throws IOException {
 		try {
 			Socket clientSocket = listenSocket.accept();
 			Connection c = new Connection(clientSocket);
-			clients.add(c);
-		} catch (SocketTimeoutException e) {
-		}
+			if (c != null) {
+				clients.add(c);
+				return true;
+			}
+		} catch (SocketTimeoutException e) { }
+		return false;
 	}
 
 	public void processMessages() {
-		for (Connection source : clients) {
-			Connection.Message message = source.readMessage();
-			if (message == null) {
+		ListIterator<Connection> clientsIterator = clients.listIterator();
+		while(clientsIterator.hasNext()) {
+			Connection source = clientsIterator.next();
+			if (!source.hasMessage()) {
 				continue;
 			}
-			for (Connection dest : clients) {
-				if (source != dest)
-					dest.writeMessage(message);
+			try {
+				String message = source.readMessage();
+				for (Connection dest : clients) {
+					if (source != dest) {
+						dest.writeMessage(message);
+					}
+				}
+			} catch (IOException e) {
+				source.close();
+				clientsIterator.remove();
+				continue;
 			}
 		}
 	}
@@ -43,10 +55,10 @@ public class ChatServer {
 	public static void main(String args[]) {
 		try {
 			int serverPort = Integer.parseInt(args[0]);
-			ChatServer server = new ChatServer(serverPort);
+			ChatServer server = new ChatServer(serverPort,DEFAULT_SERVER_SOCKET_TIMEOUT);
 
 			while (true) {
-				server.acceptNewConnections();
+				server.acceptNewConnection();
 				server.processMessages();
 			}
 		} catch (IOException e) {

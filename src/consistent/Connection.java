@@ -10,11 +10,13 @@ class Connection {
 	Socket clientSocket;
 
 	private String clientName;
+	private InputStream rawIn;
 
 	public Connection(Socket aClientSocket) {
 		try {
 			clientSocket = aClientSocket;
-			in = new DataInputStream(clientSocket.getInputStream());
+			rawIn = clientSocket.getInputStream();
+			in = new DataInputStream(rawIn);
 			out = new DataOutputStream(clientSocket.getOutputStream());
 
 			clientName = in.readUTF();
@@ -27,13 +29,13 @@ class Connection {
 	
 	public boolean hasMessage() {
 		try {
-			return in.available() > 0;
+			return rawIn.available() > 0;
 		} catch (IOException e) {
 			return false;
 		}
 	}
 
-	public String readMessage() throws IOException {
+	public String readMessage() {
 		return String.format("%s: %s", clientName, in.readUTF());
 	}
 
@@ -53,5 +55,10 @@ class Connection {
 
 	public void close() {
 		// TODO CLOSE CONNECTIONS		
+	}
+
+	public boolean error() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

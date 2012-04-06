@@ -25,10 +25,12 @@ public class ChatServer {
 	public boolean acceptNewConnection() throws IOException {
 		try {
 			Socket clientSocket = listenSocket.accept();
-			Connection c = new Connection(clientSocket);
-			if (c != null) {
+			try {
+				Connection c = new Connection(clientSocket);
 				clients.add(c);
 				return true;
+			} catch (IOException e) {
+				clientSocket.close();
 			}
 		} catch (SocketTimeoutException e) { }
 		return false;
@@ -47,13 +49,13 @@ public class ChatServer {
 		}
 	}
 
-	private void closeBadConnections() {
+	private void closeBadConnections() throws IOException {
 		ListIterator<Connection> clientIt = clients.listIterator();
 		while(clientIt.hasNext()) {
 			Connection client = clientIt.next();
 			if (client.error()) {
-				client.close();
 				clientIt.remove();
+				client.close();
 			}
 		}
 	}
@@ -67,7 +69,7 @@ public class ChatServer {
 		ChatServer server = null;
 		try {
 			int serverPort = Integer.parseInt(args[0]);
-			server = new ChatServer(serverPort,DEFAULT_SERVER_SOCKET_TIMEOUT);
+			server = new ChatServer(serverPort, DEFAULT_SERVER_SOCKET_TIMEOUT);
 
 			while (true) {
 				server.acceptNewConnection();

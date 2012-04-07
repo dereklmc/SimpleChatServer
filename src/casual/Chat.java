@@ -1,3 +1,5 @@
+package casual;
+
 import java.net.*;  // ServerSocket, Socket
 import java.io.*;   // InputStream, ObjectInputStream, ObjectOutputStream
 
@@ -97,7 +99,7 @@ public class Chat {
 		// let's slow down the chat member #2.
 		try {
 		    if ( rank == 2 )
-			Thread.currentThread( ).sleep( 5000 ); // sleep 5 sec.
+		    	Thread.currentThread( ).sleep( 5000 ); // sleep 5 sec.
 		} catch ( InterruptedException e ) {}
 
 		// check if chat member #i has something

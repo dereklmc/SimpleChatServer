@@ -10,48 +10,60 @@ class Connection {
 	Socket clientSocket;
 
 	private String clientName;
+	private InputStream rawIn;
 
-	public Connection(Socket aClientSocket) {
-		try {
-			clientSocket = aClientSocket;
-			in = new DataInputStream(clientSocket.getInputStream());
-			out = new DataOutputStream(clientSocket.getOutputStream());
+	private boolean errorOccured;
 
-			clientName = in.readUTF();
-			System.out.println("Connected: " + clientName);
+	public Connection(Socket aClientSocket) throws IOException {
+		errorOccured = false;
+		clientSocket = aClientSocket;
+		rawIn = clientSocket.getInputStream();
+		in = new DataInputStream(rawIn);
+		out = new DataOutputStream(clientSocket.getOutputStream());
 
-		} catch (IOException e) {
-			System.out.println("Connection:" + e.getMessage());
-		}
+		clientName = in.readUTF();
+		System.out.println("Connected: " + clientName);
 	}
-	
+
 	public boolean hasMessage() {
 		try {
-			return in.available() > 0;
+			return error() || rawIn.available() > 0;
 		} catch (IOException e) {
 			return false;
 		}
 	}
 
-	public String readMessage() throws IOException {
-		return String.format("%s: %s", clientName, in.readUTF());
-	}
-
-	public boolean writeMessage(String message) {
+	public String readMessage() {
 		try {
-			out.writeUTF(message);
+			return String.format("%s: %s", clientName, in.readUTF());
 		} catch (IOException e) {
-			return false;
+			errorOccured = true;
+			return null;
 		}
-		return true;
+	}
+
+	public void writeMessage(String message) {
+		if (!error()) {
+			try {
+				out.writeUTF(message);
+			} catch (IOException e) {
+				errorOccured = true;
+			}
+		}
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		return clientName.equals(((Connection)obj).clientName);
+		return clientName.equals(((Connection) obj).clientName);
 	}
 
-	public void close() {
-		// TODO CLOSE CONNECTIONS		
+	public void close() throws IOException {
+		clientSocket.close();
+		in.close();
+		out.close();
+	}
+
+	public boolean error() {
+		return errorOccured;
 	}
 }

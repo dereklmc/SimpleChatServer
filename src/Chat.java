@@ -117,17 +117,18 @@ public class Chat {
 				    try {
 				    	int[] messageState = (int[])inputs[i].readObject( );
 				    	int totalDiff = 0;
-					for (int j = 0; j < messageState.length; j++) {
-						totalDiff += messageState[j] - state[j];
-					}
-					if (totalDiff < 2) {
-						String outMS = Integer.toString(messageState[0]);
-				    		for (int j = 1; j < messageState.length; j++) {
-							if (messageState[j] > state[j])
-								state[j] = messageState[j];
-							outMS += "," + messageState[j];
-						}
-				    		System.out.println( hosts[i] + ": STATE: " + outMS);
+				    	for (int j = 0; j < messageState.length; j++) {
+				    		totalDiff += messageState[j] - state[j];
+				    	}
+				    	if (totalDiff < 2) {
+//						String outMS = Integer.toString(messageState[0]);
+				    		for (int j = 0; j < messageState.length; j++) {
+				    			if (messageState[j] > state[j]) {
+				    				state[j] = messageState[j];
+				    			}
+//							outMS += "," + messageState[j];
+				    		}
+//				    		System.out.println( hosts[i] + ": STATE: " + outMS);
 				    		String message = ( String )inputs[i].readObject( );
 				    		System.out.println( hosts[i] + ": " + message );
 					}

@@ -40,9 +40,11 @@ public class ChatServer {
 		for (Connection source : clients) {
 			if (source.hasMessage()) {
 				String message = source.readMessage();
-				for (Connection dest : clients) {
-					if (source != dest) {
-						dest.writeMessage(message);
+				if (message != null) {
+					for (Connection dest : clients) {
+						if (source != dest) {
+							dest.writeMessage(message);
+						}
 					}
 				}
 			}

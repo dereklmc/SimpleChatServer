@@ -43,6 +43,9 @@ class Connection {
 	}
 
 	public void writeMessage(String message) {
+		if (message == null) {
+			throw new IllegalArgumentException("Message Is Null!");
+		}
 		if (!error()) {
 			try {
 				out.writeUTF(message);

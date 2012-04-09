@@ -106,7 +106,7 @@ public class Chat {
 				// let's slow down the chat member #2.
 				try {
 				    if ( rank == 2 ) {
-				    	Thread.currentThread( ).sleep( 10000 ); // sleep 5 sec.
+				    	Thread.currentThread( ).sleep( 5000 ); // sleep 5 sec.
 				    }
 				} catch ( InterruptedException e ) {}
 		

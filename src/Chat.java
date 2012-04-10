@@ -131,8 +131,9 @@ public class Chat {
 //				    		System.out.println( hosts[i] + ": STATE: " + outMS);
 				    		String message = ( String )inputs[i].readObject( );
 				    		System.out.println( hosts[i] + ": " + message );
-					}
+				    	}
 				    } catch ( ClassNotFoundException e ) {}
+				    catch ( ClassCastException e ) {}
 				}
 		    }
 		}

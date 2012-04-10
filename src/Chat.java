@@ -101,6 +101,7 @@ public class Chat {
 		    }
 	
 		    // read a message from each of the chat members
+		    ReadLoop:
 		    for ( int i = 0; i < hosts.length; i++ ) {
 				// to intentionally create a misordered message delivery, 
 				// let's slow down the chat member #2.
@@ -116,22 +117,31 @@ public class Chat {
 				    // to the monitor
 				    try {
 				    	int[] messageState = (int[])inputs[i].readObject( );
-				    	int totalDiff = 0;
-				    	for (int j = 0; j < messageState.length; j++) {
-				    		totalDiff += messageState[j] - state[j];
-				    	}
-				    	if (totalDiff < 2) {
-//						String outMS = Integer.toString(messageState[0]);
+				    	
+//				    	for (int j = 0; j < hosts.length; j++) {
+//							if (j == i && messageState[j] == state[j] + 1) {
+//								continue ReadLoop;
+//							} else if (messageState[j] <= state[j]) {
+//								continue ReadLoop;
+//							}
+//						}
+//				    	
+//				    	int totalDiff = 0;
+//				    	for (int j = 0; j < messageState.length; j++) {
+//				    		totalDiff += messageState[j] - state[j];
+//				    	}
+//				    	if (totalDiff < 2) {
+						String outMS = Integer.toString(messageState[0]);
 				    		for (int j = 0; j < messageState.length; j++) {
 				    			if (messageState[j] > state[j]) {
 				    				state[j] = messageState[j];
 				    			}
-//							outMS += "," + messageState[j];
+							outMS += "," + messageState[j];
 				    		}
-//				    		System.out.println( hosts[i] + ": STATE: " + outMS);
+				    		System.out.println( hosts[i] + ": STATE: " + outMS);
 				    		String message = ( String )inputs[i].readObject( );
 				    		System.out.println( hosts[i] + ": " + message );
-				    	}
+//				    	}
 				    } catch ( ClassNotFoundException e ) {}
 				    catch ( ClassCastException e ) {}
 				}

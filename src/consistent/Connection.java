@@ -69,4 +69,8 @@ class Connection {
 	public boolean error() {
 		return errorOccured;
 	}
+
+	public String getClientName() {
+		return clientName;
+	}
 }

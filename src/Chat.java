@@ -1,5 +1,7 @@
 import java.net.*;  // ServerSocket, Socket
-import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ListIterator;
 import java.io.*;   // InputStream, ObjectInputStream, ObjectOutputStream
 
 public class Chat {
@@ -8,6 +10,7 @@ public class Chat {
     private InputStream[] indata = null;         // used to check data from i
     private ObjectInputStream[] inputs = null;   // a message from i
     private ObjectOutputStream[] outputs = null; // a message to i
+    private List<Message> queuedMessages;
     
     private int[] state = null;
 
@@ -34,7 +37,7 @@ public class Chat {
 		
 		// Initialize state
 		state = new int[hosts.length];
-		Arrays.fill(state, 0);
+		queuedMessages = new LinkedList<Message>();
 	
 		// establish a complete network
 		ServerSocket server = new ServerSocket( port );
@@ -91,25 +94,23 @@ public class Chat {
 			}
 			state[rank] += 1;
 			// broadcast a message to each of the chat members.
+			Message m = new Message(rank, state, message);
+	    	System.out.println("Sending message: " + m);
 			for ( int i = 0; i < hosts.length; i++ )
 			    if ( i != rank ) {
 			    	// of course I should not send a message to myself
-			    	Message m = new Message(state, message);
-			    	System.out.println("Printing message: " + m);
-			    	outputs[i].writeObject(new Message(state, message));
-//			    	outputs[i].writeObject( message );
+			    	outputs[i].writeObject(m);
 			    	outputs[i].flush( ); // make sure the message was sent
 			    }
 		    }
 	
 		    // read a message from each of the chat members
-		    ReadLoop:
 		    for ( int i = 0; i < hosts.length; i++ ) {
 				// to intentionally create a misordered message delivery, 
 				// let's slow down the chat member #2.
 				try {
 				    if ( rank == 2 ) {
-				    	Thread.currentThread( ).sleep( 5000 ); // sleep 5 sec.
+				    	Thread.currentThread( ).sleep( 7000 ); // sleep 5 sec.
 				    }
 				} catch ( InterruptedException e ) {}
 		
@@ -117,12 +118,24 @@ public class Chat {
 				if ( i != rank && indata[i].available( ) > 0 ) {
 				    // read a message from chat member #i and print it out
 				    // to the monitor
-				    try {
-				    	Message recieved = (Message) inputs[i].readObject( );
+					try {
+						Message recieved = (Message) inputs[i].readObject( );
 				    	System.out.println("Received Message: " + recieved);
-				    	System.out.println( hosts[i] + ": " + recieved.getBody() );
+				    	queuedMessages.add(recieved);
+					} catch (ClassNotFoundException e) { }
+				}
+		    }
+		    for (ListIterator<Message> iterator = queuedMessages.listIterator(); iterator.hasNext();) {
+				Message undelivered = iterator.next();
+				if (undelivered.isDeliverable(state)) {
+					System.out.println("Delivering Message: " + undelivered);
+					System.out.println( hosts[undelivered.getHost()] + ": " + undelivered.getBody());
+					iterator.remove();
+				}
+			}
+//				    	System.out.println( hosts[i] + ": " + recieved.getBody() );
 //				    	int[] messageState = (int[])inputs[i].readObject( );
-				    	
+//				    	
 //				    	for (int j = 0; j < hosts.length; j++) {
 //							if (j == i && messageState[j] == state[j] + 1) {
 //								continue ReadLoop;
@@ -147,10 +160,10 @@ public class Chat {
 //				    		String message = ( String )inputs[i].readObject( );
 //				    		System.out.println( hosts[i] + ": " + message );
 //				    	}
-				    } catch ( ClassNotFoundException e ) {}
-				    catch ( ClassCastException e ) {}
-				}
-		    }
+//				    } catch ( ClassNotFoundException e ) {}
+//				    catch ( ClassCastException e ) {}
+//				}
+//		    }
 		}
     }
 

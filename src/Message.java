@@ -2,17 +2,17 @@ import java.io.Serializable;
 import java.util.Arrays;
 
 public class Message implements Serializable {
-	
+
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -1071983615436769006L;
-	
+
 	private int state[] = null;
 	private String body = null;
 	private int hostRank = -1;
-	
-	public Message(int hostRank, int [] state, String body) {
+
+	public Message(int hostRank, int[] state, String body) {
 		this.hostRank = hostRank;
 		this.state = Arrays.copyOf(state, state.length);
 		this.body = body;
@@ -34,11 +34,11 @@ public class Message implements Serializable {
 	public String getBody() {
 		return body;
 	}
-	
+
 	public int getHost() {
 		return hostRank;
 	}
-	
+
 	public boolean isDeliverable(int[] recieverState) {
 		if (state[hostRank] != recieverState[hostRank] + 1) {
 			return false;

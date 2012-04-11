@@ -7,9 +7,13 @@ import java.io.*; // InputStream, ObjectInputStream, ObjectOutputStream
 public class Chat {
 	// Each element i of the following arrays represent a chat member[i]
 	private Socket[] sockets = null; // connection to i
+
 	private InputStream[] indata = null; // used to check data from i
+
 	private ObjectInputStream[] inputs = null; // a message from i
+
 	private ObjectOutputStream[] outputs = null; // a message to i
+
 	private List<Message> queuedMessages;
 
 	private int[] state = null;
@@ -61,8 +65,8 @@ public class Chat {
 						sockets[j] = socket;
 						indata[j] = socket.getInputStream();
 						inputs[j] = new ObjectInputStream(indata[j]);
-						outputs[j] = new ObjectOutputStream(
-								socket.getOutputStream());
+						outputs[j] = new ObjectOutputStream(socket
+								.getOutputStream());
 					}
 			}
 			if (i < rank) {
@@ -72,8 +76,8 @@ public class Chat {
 
 				// store this destination host j's connection, input stream
 				// and object input/output streams.
-				outputs[i] = new ObjectOutputStream(
-						sockets[i].getOutputStream());
+				outputs[i] = new ObjectOutputStream(sockets[i]
+						.getOutputStream());
 				indata[i] = sockets[i].getInputStream();
 				inputs[i] = new ObjectInputStream(indata[i]);
 			}
@@ -96,7 +100,6 @@ public class Chat {
 				state[rank] += 1;
 				// broadcast a message to each of the chat members.
 				Message m = new Message(rank, state, message);
-				System.out.println("Sending message: " + m);
 				for (int i = 0; i < hosts.length; i++)
 					if (i != rank) {
 						// of course I should not send a message to myself
@@ -121,28 +124,22 @@ public class Chat {
 					// read a message from chat member #i and print it out
 					// to the monitor
 					try {
-						Message recieved = (Message) inputs[i].readObject();
-						System.out.println("Received Message: " + recieved);
-						queuedMessages.add(recieved);
+						// Queue all incoming messages.
+						queuedMessages.add((Message) inputs[i].readObject());
 					} catch (ClassNotFoundException e) {
+					} catch (ClassCastException e) {
 					}
 				}
-				// }
-				for (ListIterator<Message> iterator = queuedMessages
-						.listIterator(); iterator.hasNext();) {
+				// Check all queued messages if they can be delivered. Deliver
+				// only the messages that are maintain causal ordering.
+				ListIterator<Message> iterator = queuedMessages.listIterator();
+				while (iterator.hasNext()) {
 					Message undelivered = iterator.next();
 					if (undelivered.isDeliverable(state)) {
-						System.out
-								.println("Delivering Message: " + undelivered);
 						System.out.println(hosts[undelivered.getHost()] + ": "
 								+ undelivered.getBody());
 						state[undelivered.getHost()] += 1;
 						iterator.remove();
-						System.out.print("Current State: " + state[0]);
-						for (int j = 1; j < hosts.length; j++) {
-							System.out.print("," + state[j]);
-						}
-						System.out.println("");
 					}
 				}
 			}

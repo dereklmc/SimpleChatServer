@@ -10,12 +10,12 @@ import java.util.*;
  */
 public class ChatServer {
 
-	//
+	// How long to wait for new connectiosn from clients.
 	private static final int DEFAULT_SERVER_SOCKET_TIMEOUT = 500;
 
-	//
+	// The socket the server should listen on
 	private ServerSocket listenSocket;
-	//
+	// All currently connected clients.
 	private List<Connection> clients;
 
 	/**

@@ -1,0 +1,33 @@
+<p><link href='http://fonts.googleapis.com/css?family=Lekton' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Molengo' rel='stylesheet' type='text/css'>
+<style type="text/css">
+html { font-family: 'Lekton', Helvetica, Arial, sans-serif; font-size: 14px; }
+h1,h2 { font-family: 'Molengo', Georgia, Times, serif; }
+</style></p>
+
+<h1>Assignment 1</h1>
+
+<hr />
+
+<p>UWB CSS 434 <br />
+Derek McLean <br />
+April 11, 2012</p>
+
+<hr />
+
+<h2>Part 1: Consistent Ordering</h2>
+
+<p>The chat server connects n number of client nodes with an additional sequencer node (the sever). 
+The server's role is to garauntee messages are delivered in a consistent ordering to all clients. 
+The algorithm is an infinite loop over four, "high-level" steps:</p>
+
+<ol>
+<li>Accept a new connection, if there is any.</li>
+<li>Read messages from clients</li>
+<li>Write messages to clients.</li>
+<li>Close connections that had an error.</li>
+</ol>
+
+<h2>Part 2: Causal Ordering</h2>
+
+<hr />

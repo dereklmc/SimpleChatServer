@@ -103,11 +103,6 @@ public class Chat {
 			    	outputs[i].flush( ); // make sure the message was sent
 			    }
 		    }
-			try {
-                                    if ( rank == 2 ) {
-                                        Thread.currentThread( ).sleep( 10000 ); // sleep 5 sec.
-                                    }
-                                } catch ( InterruptedException e ) {}
 		    // read a message from each of the chat members
 		    for ( int i = 0; i < hosts.length; i++ ) {
 				// to intentionally create a misordered message delivery, 
@@ -128,7 +123,7 @@ public class Chat {
 				    	queuedMessages.add(recieved);
 					} catch (ClassNotFoundException e) { }
 				}
-		    }
+		    //}
 		    for (ListIterator<Message> iterator = queuedMessages.listIterator(); iterator.hasNext();) {
 				Message undelivered = iterator.next();
 				if (undelivered.isDeliverable(state)) {
@@ -137,12 +132,13 @@ public class Chat {
 					state[undelivered.getHost()] += 1;
 					iterator.remove();
 					System.out.print("Current State: " + state[0]);
-					for (int i = 1; i < hosts.length; i++) {
-						System.out.print("," + state[i]);
+					for (int j = 1; j < hosts.length; j++) {
+						System.out.print("," + state[j]);
 					}
 					System.out.println("");
 				}
 			}
+		}
 //				    	System.out.println( hosts[i] + ": " + recieved.getBody() );
 //				    	int[] messageState = (int[])inputs[i].readObject( );
 //				    	

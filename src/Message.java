@@ -1,5 +1,5 @@
 import java.io.Serializable;
-
+import java.util.Arrays;
 
 public class Message implements Serializable {
 	
@@ -8,13 +8,13 @@ public class Message implements Serializable {
 	 */
 	private static final long serialVersionUID = -1071983615436769006L;
 	
-	private int state[];
-	private String body;
-	private int hostRank;
+	private int state[] = null;
+	private String body = null;
+	private int hostRank = -1;
 	
 	public Message(int hostRank, int [] state, String body) {
 		this.hostRank = hostRank;
-		this.state = state;
+		this.state = Arrays.copyOf(state, state.length);
 		this.body = body;
 	}
 

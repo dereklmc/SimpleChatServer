@@ -103,14 +103,18 @@ public class Chat {
 			    	outputs[i].flush( ); // make sure the message was sent
 			    }
 		    }
-	
+			try {
+                                    if ( rank == 2 ) {
+                                        Thread.currentThread( ).sleep( 10000 ); // sleep 5 sec.
+                                    }
+                                } catch ( InterruptedException e ) {}
 		    // read a message from each of the chat members
 		    for ( int i = 0; i < hosts.length; i++ ) {
 				// to intentionally create a misordered message delivery, 
 				// let's slow down the chat member #2.
 				try {
 				    if ( rank == 2 ) {
-				    	Thread.currentThread( ).sleep( 7000 ); // sleep 5 sec.
+				    	Thread.currentThread( ).sleep( 10000 ); // sleep 5 sec.
 				    }
 				} catch ( InterruptedException e ) {}
 		
@@ -130,7 +134,13 @@ public class Chat {
 				if (undelivered.isDeliverable(state)) {
 					System.out.println("Delivering Message: " + undelivered);
 					System.out.println( hosts[undelivered.getHost()] + ": " + undelivered.getBody());
+					state[undelivered.getHost()] += 1;
 					iterator.remove();
+					System.out.print("Current State: " + state[0]);
+					for (int i = 1; i < hosts.length; i++) {
+						System.out.print("," + state[i]);
+					}
+					System.out.println("");
 				}
 			}
 //				    	System.out.println( hosts[i] + ": " + recieved.getBody() );

@@ -94,8 +94,10 @@ public class Chat {
 			for ( int i = 0; i < hosts.length; i++ )
 			    if ( i != rank ) {
 			    	// of course I should not send a message to myself
-			    	outputs[i].writeObject( state );
-			    	outputs[i].writeObject( message );
+			    	Message m = new Message(state, message);
+			    	System.out.println("Printing message: " + m);
+			    	outputs[i].writeObject(new Message(state, message));
+//			    	outputs[i].writeObject( message );
 			    	outputs[i].flush( ); // make sure the message was sent
 			    }
 		    }
@@ -116,7 +118,10 @@ public class Chat {
 				    // read a message from chat member #i and print it out
 				    // to the monitor
 				    try {
-				    	int[] messageState = (int[])inputs[i].readObject( );
+				    	Message recieved = (Message) inputs[i].readObject( );
+				    	System.out.println("Received Message: " + recieved);
+				    	System.out.println( hosts[i] + ": " + recieved.getBody() );
+//				    	int[] messageState = (int[])inputs[i].readObject( );
 				    	
 //				    	for (int j = 0; j < hosts.length; j++) {
 //							if (j == i && messageState[j] == state[j] + 1) {
@@ -131,16 +136,16 @@ public class Chat {
 //				    		totalDiff += messageState[j] - state[j];
 //				    	}
 //				    	if (totalDiff < 2) {
-						String outMS = Integer.toString(messageState[0]);
-				    		for (int j = 0; j < messageState.length; j++) {
-				    			if (messageState[j] > state[j]) {
-				    				state[j] = messageState[j];
-				    			}
-							outMS += "," + messageState[j];
-				    		}
-				    		System.out.println( hosts[i] + ": STATE: " + outMS);
-				    		String message = ( String )inputs[i].readObject( );
-				    		System.out.println( hosts[i] + ": " + message );
+//						String outMS = Integer.toString(messageState[0]);
+//				    		for (int j = 0; j < messageState.length; j++) {
+//				    			if (messageState[j] > state[j]) {
+//				    				state[j] = messageState[j];
+//				    			}
+//							outMS += "," + messageState[j];
+//				    		}
+//				    		System.out.println( hosts[i] + ": STATE: " + outMS);
+//				    		String message = ( String )inputs[i].readObject( );
+//				    		System.out.println( hosts[i] + ": " + message );
 //				    	}
 				    } catch ( ClassNotFoundException e ) {}
 				    catch ( ClassCastException e ) {}

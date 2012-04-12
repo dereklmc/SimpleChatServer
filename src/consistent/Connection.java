@@ -53,7 +53,6 @@ class Connection {
 
 		// Attempt to read client name. If a name couldn't be read, fail.
 		clientName = in.readUTF();
-		System.out.println("Connected: " + clientName);
 	}
 
 	/**

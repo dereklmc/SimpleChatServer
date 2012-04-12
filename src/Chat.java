@@ -65,8 +65,8 @@ public class Chat {
 						sockets[j] = socket;
 						indata[j] = socket.getInputStream();
 						inputs[j] = new ObjectInputStream(indata[j]);
-						outputs[j] = new ObjectOutputStream(socket
-								.getOutputStream());
+						outputs[j] = new ObjectOutputStream(
+								socket.getOutputStream());
 					}
 			}
 			if (i < rank) {
@@ -76,8 +76,8 @@ public class Chat {
 
 				// store this destination host j's connection, input stream
 				// and object input/output streams.
-				outputs[i] = new ObjectOutputStream(sockets[i]
-						.getOutputStream());
+				outputs[i] = new ObjectOutputStream(
+						sockets[i].getOutputStream());
 				indata[i] = sockets[i].getInputStream();
 				inputs[i] = new ObjectInputStream(indata[i]);
 			}
@@ -99,11 +99,13 @@ public class Chat {
 				}
 				state[rank] += 1;
 				// broadcast a message to each of the chat members.
-				Message m = new Message(rank, state, message);
+				Message msg = new Message(rank, state, message);
 				for (int i = 0; i < hosts.length; i++)
 					if (i != rank) {
 						// of course I should not send a message to myself
-						outputs[i].writeObject(m);
+						// minor modification of write to allow sending message
+						// objects instead of strings.
+						outputs[i].writeObject(msg);
 						outputs[i].flush(); // make sure the message was sent
 					}
 			}
@@ -125,6 +127,9 @@ public class Chat {
 					// to the monitor
 					try {
 						// Queue all incoming messages.
+						// At this point, consider all incoming messages as
+						// always undelivered. This simplifies the algorithm as
+						// presented in class.
 						queuedMessages.add((Message) inputs[i].readObject());
 					} catch (ClassNotFoundException e) {
 					} catch (ClassCastException e) {
@@ -137,7 +142,7 @@ public class Chat {
 					Message undelivered = iterator.next();
 					if (undelivered.isDeliverable(state)) {
 						System.out.println(hosts[undelivered.getHost()] + ": "
-								+ undelivered.getBody());
+								+ undelivered);
 						state[undelivered.getHost()] += 1;
 						iterator.remove();
 					}
